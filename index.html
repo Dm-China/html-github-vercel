@@ -277,7 +277,7 @@
     <script>
       const SUPABASE_URL = "https://luixvpsxnmfuptwncnvl.supabase.co";
       const SUPABASE_KEY = "sb_publishable_8BIgn9EqGAY5sgQP9Il-xQ_WXyV_dNL";
-      const CLIENT_ID_KEY = "minimal-todo-client-id";
+      const SHARED_LIST_ID = "shared-demo-list";
 
       const form = document.querySelector("#todo-form");
       const input = document.querySelector("#todo-input");
@@ -287,11 +287,10 @@
       const countEl = document.querySelector("#count");
       const clearButton = document.querySelector("#clear-completed");
 
-      const clientId = getClientId();
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         global: {
           headers: {
-            "x-client-id": clientId,
+            "x-client-id": SHARED_LIST_ID,
           },
         },
       });
@@ -307,7 +306,7 @@
         await runTask(async () => {
           const { data, error } = await db
             .from("todos")
-            .insert({ title, client_id: clientId })
+            .insert({ title, client_id: SHARED_LIST_ID })
             .select("id,title,completed,created_at")
             .single();
 
@@ -326,7 +325,7 @@
           const { error } = await db
             .from("todos")
             .delete()
-            .eq("client_id", clientId)
+            .eq("client_id", SHARED_LIST_ID)
             .eq("completed", true);
 
           if (error) throw error;
@@ -447,17 +446,6 @@
         statusEl.classList.toggle("error", isError);
       }
 
-      function getClientId() {
-        const existing = localStorage.getItem(CLIENT_ID_KEY);
-        if (existing) return existing;
-
-        const id =
-          typeof crypto.randomUUID === "function"
-            ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        localStorage.setItem(CLIENT_ID_KEY, id);
-        return id;
-      }
     </script>
   </body>
 </html>
